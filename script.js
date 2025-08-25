@@ -1,11 +1,3 @@
-const TEST_MODE = false;
-
-if (TEST_MODE) {
-    document.getElementById("refreshPage").innerHTML = '<i class="fa-solid fa-recycle"></i>TEST_MODE';
-} else {
-    document.getElementById("refreshPage").innerHTML = '<i class="fa-solid fa-recycle"></i>';
-}
-
 const bindDefault = (i, c, d) => {
     const inp = document.getElementById(i),
         cb = document.getElementById(c);
@@ -59,6 +51,7 @@ const routeTA = document.getElementById('route');
 const windBtn = document.getElementById('windBtn');
 const copyRoute = document.getElementById('copyRoute');
 const requestRoutes = document.getElementById('requestRoutes');
+const checkServerBtn = document.getElementById('checkServer');
 const setNowDateBtn = document.getElementById('setNowDate');
 const dtUtcInput = document.getElementById('dtUtc');
 
@@ -99,7 +92,7 @@ function routeDropdownFunc() {
 routeDropdownSelect.addEventListener('change', routeDropdownFunc);
 
 function chk() {
-    windBtn.disabled = !routeTA.value.trim();
+    windBtn.disabled = routeTA.value.trim().length < 5 || !getValue('payloadActual');
 }
 
 routeTA.addEventListener('input', chk);
@@ -152,6 +145,12 @@ windBtn.addEventListener('click', async () => {
         return;
     }
 
+    const payloadActual = getValue('payloadActual');
+    if (!routeString) {
+        alert('Не указан PAYLOAD');
+        return;
+    }
+
     const originalHTML = windBtn.innerHTML;
     windBtn.innerHTML = '<i class="fa-solid fa-tower-broadcast"></i>Проверяем сервер...';
 
@@ -159,7 +158,7 @@ windBtn.addEventListener('click', async () => {
         if (authenticated) {
             windBtn.innerHTML = '<i class="fa-solid fa-spinner"></i> Получаем информацию...';
 
-            calculateRoute(originalIcao, destinationIcao, altIcao, routeString, formattedDate).then(routeInfo => {
+            calculateRoute(originalIcao, destinationIcao, altIcao, payloadActual, routeString, formattedDate).then(routeInfo => {
 
                 // {avg_wind_comp: 25, route_distance: 1219, air_distance: 1147, trip_fuel: 6948, trip_time: "02:49:27", total_fob: 11537, alternate: "UNOO"}
 
@@ -197,6 +196,26 @@ windBtn.addEventListener('click', async () => {
 
 })
 
+function checkServerFunc() {
+    const originalHTML = checkServerBtn.innerHTML;
+
+    checkServerBtn.innerHTML = '<i class="fa-solid fa-tower-broadcast"></i>Проверка...';
+
+    checkAuthSimbrief().then(authenticated => {
+        if (authenticated) {
+            checkServerBtn.innerHTML = `<i class="fa-solid fa-check"></i> Успешно`;
+        } else {
+            checkServerBtn.innerHTML = `<i class="fa-solid fa-xmark"></i> Ошибка`;
+        }
+    });
+
+    setTimeout(() => {
+        checkServerBtn.innerHTML = originalHTML;
+    }, 2000);
+}
+
+checkServerBtn.addEventListener('click', checkServerFunc);
+
 function requestRoutesFunc() {
     const original = icaoFromInput.value;
     const destination = icaoToInput.value;
@@ -225,6 +244,7 @@ function requestRoutesFunc() {
             getRoutes(originalIcao, destinationIcao).then(routes => {
                 if (routes.length > 0) {
                     routeDropdownSelect.innerHTML = '';
+
                     routes.forEach(route => {
                         const option = document.createElement('option');
                         option.value = `route ${routes.indexOf(route)}`;
@@ -322,7 +342,7 @@ function calculate() {
         acNum: acnum.value,
         icaoFrom: (icaoFrom.value || '').toUpperCase(),
         icaoTo: (icaoTo.value || '').toUpperCase(),
-        payload1: parseInt(payload1.value || 0),
+        payloadActual: parseInt(payloadActual.value || 0),
         mtow: parseInt(mtow.value || 79015),
         mldw: parseInt(mldw.value || 66360),
         ad: parseInt(ad.value || 0),
@@ -335,58 +355,18 @@ function calculate() {
         avgwcOld: parseInt(avgwcOld.value || 0),
         acnumOld: acnumOld.value,
         eldwOld: parseInt(eldwOld.value || 0),
-        payload2: parseInt(payload2.value || 0),
+        payloadOld: parseInt(payloadOld.value || 0),
         route: route.value || '',
         etdUtc: dtUtc.value,
         avgwcNew: parseInt(avgwcNew.value || 0)
     };
 
-    const totalCalc = 8;
+    const totalCalc = 7;
     let doneCalc = 0;
 
-    if (data.payload1) {
-        setValue('payloadActualDub', data.payload1);
+    if (data.payloadActual) {
+        setValue('payloadActualDub', data.payloadActual);
         doneCalc += 1;
-    }
-
-    const weights = {
-        '73093': {'dow': '43990', 'doi': '45,53'},
-        '73094': {'dow': '43801', 'doi': '45,15'},
-        '73095': {'dow': '43870', 'doi': '45,34'},
-        '73096': {'dow': '43956', 'doi': '43,82'},
-        '73097': {'dow': '43895', 'doi': '45,18'},
-        '73098': {'dow': '43700', 'doi': '45,01'},
-        '73099': {'dow': '43760', 'doi': '43,95'},
-        '73100': {'dow': '43788', 'doi': '43,98'},
-        '73101': {'dow': '43725', 'doi': '45,01'},
-        '73102': {'dow': '43730', 'doi': '43,93'},
-        '73103': {'dow': '43653', 'doi': '46,07'},
-        '73104': {'dow': '43903', 'doi': '45,00'},
-        '73105': {'dow': '43920', 'doi': '43,88'},
-        '73106': {'dow': '43827', 'doi': '46,49'},
-        '73107': {'dow': '43761', 'doi': '45,10'},
-        '73108': {'dow': '43880', 'doi': '45,50'},
-        '73109': {'dow': '43840', 'doi': '44,82'},
-        '73110': {'dow': '43736', 'doi': '45,22'},
-        '73111': {'dow': '44045', 'doi': '45,90'},
-        '73112': {'dow': '43655', 'doi': '44,85'},
-        '73113': {'dow': '43843', 'doi': '44,16'},
-        '73114': {'dow': '43900', 'doi': '43,73'},
-        '73115': {'dow': '43825', 'doi': '44,15'},
-        '73116': {'dow': '43958', 'doi': '44,84'},
-        '73117': {'dow': '43763', 'doi': '43,78'},
-        '73118': {'dow': '43930', 'doi': '43,20'},
-        '73119': {'dow': '43945', 'doi': '44,40'},
-        '73120': {'dow': '43705', 'doi': '43,86'},
-        '73121': {'dow': '43700', 'doi': '44,88'},
-        '73122': {'dow': '44110', 'doi': '46,35'},
-        '73123': {'dow': '43895', 'doi': '44,55'},
-        '73124': {'dow': '43791', 'doi': '44,15'},
-        '73125': {'dow': '43823', 'doi': '44,46'},
-        '73126': {'dow': '43979', 'doi': '46,75'},
-        '73127': {'dow': '43875', 'doi': '44,98'},
-        '73128': {'dow': '43918', 'doi': '45,70'},
-        '73129': {'dow': '43821', 'doi': '44,45'}
     }
 
     let dow = null;
@@ -407,8 +387,8 @@ function calculate() {
         doneCalc += 1;
     }
 
-    if (data.acNum && data.payload1) {
-        const ezfw = parseInt(data.payload1) + dow;
+    if (data.acNum && data.payloadActual) {
+        const ezfw = parseInt(data.payloadActual) + dow;
 
         setValue('ezfw', ezfw);
 
@@ -557,15 +537,15 @@ function calculate() {
     }
 
     let FmaxLDG = null;
-    if (data.mtow && data.mldw && dow && data.payload1 && data.payload2 && data.eldwOld && f2) {
-        const FmaxTO = data.mtow - (data.payload1 + dow);
+    if (data.mtow && data.mldw && dow && data.payloadActual && data.payloadOld && data.eldwOld && f2) {
+        const FmaxTO = data.mtow - (data.payloadActual + dow);
 
         let extraPerDow = 0;
         if (data.acnumOld) {
             const dowOld = parseInt(weights[data.acnumOld].dow || '43_000');
             extraPerDow = dowOld - dow;
         }
-        FmaxLDG = data.mldw - data.eldwOld + (data.payload2 - data.payload1) + f2 + extraPerDow;
+        FmaxLDG = data.mldw - data.eldwOld + (data.payloadOld - data.payloadActual) + f2 + extraPerDow;
 
         setValue('FmaxTO', FmaxTO);
         setValue('FmaxLDG', FmaxLDG);
@@ -597,26 +577,26 @@ function calculate() {
         recFob = maxFOB;
         const posExtraFuel = minMaxFOB - maxFOB;
         const symbol = posExtraFuel <= 1_000 ? '⚠️' : '';
-        recComment = `${symbol} Рекомендуемый (запас ~${goRound(posExtraFuel, 100, true)})`;
+        recComment = `${symbol} Рекомендуемый (запас ~${formatNumberThousands(goRound(posExtraFuel, 100, true))} кг)`;
     } else {
         recFob = minMaxFOB;
         recComment = '⚠️ Рекомендуемый (ограничен по minMaxFOB)';
     }
 
-    setValue('fSuperTotal', goRound(recFob, 100, true));
+    setValue('fSuperTotal', formatNumberThousands(goRound(recFob, 100, true)) + ' кг');
     document.getElementById('recFobLabel').textContent = recComment;
 
     let maxPayloadForMTOW = null;
-    if (data.mtow && dow && data.payload1) {
+    if (data.mtow && dow && data.payloadActual) {
         maxPayloadForMTOW = data.mtow - recFob - dow;
         setValue('payloadMaxMTOW', goRound(maxPayloadForMTOW, 100, true));
     }
 
-    // FmaxLDG = data.mldw - data.eldwOld + (data.payload2 - data.payload1) + f2 + extraPerDow;
+    // FmaxLDG = data.mldw - data.eldwOld + (data.payloadOld - data.payloadActual) + f2 + extraPerDow;
     let maxPayloadForMLDW;
-    if (FmaxLDG && data.payload1) {
+    if (FmaxLDG && data.payloadActual) {
         const potentialExtraPayload = FmaxLDG - recFob;
-        maxPayloadForMLDW = data.payload1 + potentialExtraPayload;
+        maxPayloadForMLDW = data.payloadActual + potentialExtraPayload;
         setValue('payloadMaxMLDW', goRound(maxPayloadForMLDW, 100, true));
     }
 

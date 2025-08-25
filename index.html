@@ -9,8 +9,8 @@
         <!-- Fonts & Icons -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <!--<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">-->
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-<!--        <link rel="stylesheet" href="assets/fontawesome/css/all.min.css">-->
+        <!--        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">-->
+        <link rel="stylesheet" href="assets/fontawesome/css/all.min.css">
         <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 
         <link rel="stylesheet" href="assets/fontawesome/css/all.min.css">
@@ -28,6 +28,15 @@
 
     <body>
         <div class="wrapper">
+            <section class="card">
+                <div class="fields">
+                    <span id="testModeIndicator">...</span>
+                    <button class="calc" id="checkServer"><i class="fa-solid fa-globe"></i>Соединить</button>
+                    <button class="calc" id="save"><i class="fa-solid fa-floppy-disk"></i>Сохранить</button>
+                    <button class="calc" id="load"><i class="fa-solid fa-upload"></i>Загрузить</button>
+                    <button class="calc" id="refreshPage"><i class="fa-solid fa-trash"></i>Сбросить</button>
+                </div>
+            </section>
 
             <!-- ═══ 1. Aircraft (unchanged) ═══════════════════ -->
             <section class="card current">
@@ -37,9 +46,6 @@
                     <div class="field"><label>Вылет</label><input id="icaoFrom" placeholder="ICAO / IATA" type="text" maxlength="4" pattern="[A-Za-z]{3,4}"></div>
                     <div class="field"><label>Назначение</label><input id="icaoTo" placeholder="ICAO / IATA" type="text" maxlength="4" pattern="[A-Za-z]{3,4}"></div>
                     <div class="field"><label>Запасной</label><input id="icaoAlt" placeholder="ICAO / IATA" type="text" maxlength="4" pattern="[A-Za-z]{3,4}"></div>
-                    <div class="field for-refresh-button">
-                        <button class="calc" id="refreshPage" onclick='location.reload()'><i class="fa-solid fa-recycle"></i></button>
-                    </div>
                 </div>
             </section>
 
@@ -47,20 +53,20 @@
             <section class="card old">
                 <h2><i class="fa-solid fa-clock-rotate-left"></i>Старый SFP</h2>
                 <div class="fields">
+                    <div class="field"><label>Номер ВС</label><input id="acnumOld" placeholder="73XXX" type="number" min="73093" max="73129"></div>
+                    <div class="field"><label>AD</label><input id="ad" type="number" min="0" max="4000"></div>
+                    <div class="field"><label>AVG W/C</label><input id="avgwcOld" type="number" min="-150" max="150"></div>
                     <div class="field"><label>TRIP FUEL</label><input id="tripFuelOld" type="number" min="0" max="21000"></div>
                     <div class="field"><label>TRIP TIME</label><input id="ttOld" type="text" placeholder="HH:MM"></div>
-                    <div class="field"><label>PAYLOAD</label><input id="payload2" type="number" min="0" max="25000"></div>
                     <div class="field"><label>FOB</label><input id="totalFuelOld" type="number" min="0" max="21000"></div>
-                    <div class="field"><label>AD</label><input id="ad" type="number" min="0" max="4000"></div>
-                    <div class="field"><label>Номер ВС</label><input id="acnumOld" placeholder="73XXX" type="number" min="73093" max="73129"></div>
-                    <div class="field"><label>AVG W/C</label><input id="avgwcOld" type="number" min="-150" max="150"></div>
+                    <div class="field"><label>PAYLOAD</label><input id="payloadOld" type="number" min="0" max="25000"></div>
                     <div class="field"><label>ELDW</label><input id="eldwOld" type="number" min="0" max="66360"></div>
                 </div>
             </section>
 
             <!-- ═══ 3. Current Route (UPDATED) ═══════════════ -->
             <section class="card">
-                <h2><i class="fa-solid fa-route"></i>Актуальные данные</h2>
+                <h2><i class="fa-solid fa-file"></i>Актуальные данные</h2>
 
                 <div class="route-row">
                     <!-- textarea + buttons -->
@@ -82,21 +88,21 @@
                     <!-- ETD + wind + AVG -->
                     <div class="route-middle">
                         <div class="field">
+                            <div class="field"><label>PAYLOAD</label><input id="payloadActual" type="number" min="0" max="25000"></div>
                             <label>ETD (UTC)</label>
                             <div class='date-field'>
                                 <input id="dtUtc" type="datetime-local">
-                                <button class="icon-btn" id="setNowDate"><i class="fa-solid fa-calendar-check"></i></button>
+                                <button class="icon-btn" id="setNowDate"><i class="fa-solid fa-calendar-day"></i></button>
                             </div>
                         </div>
                         <button class="calc" id="windBtn"><i class="fa-solid fa-wind"></i>Рассчитать и получить ветер</button>
+                    </div>
+
+                    <div class="route-right">
                         <div class="field current">
                             <label id='avgWindCompLabel'>AVG W/C</label>
                             <input id="avgwcNew" type="number" min="-150" max="150">
                         </div>
-                    </div>
-
-                    <div class="route-right">
-                        <div class="field"><label>PAYLOAD</label><input id="payload1" type="number" min="0" max="25000"></div>
                         <div style="display: flex; gap: 1rem; align-items: center;">
                             <div class="field"><label>MTOW (PERF)</label>
                                 <div style="display:flex;gap:.6rem;align-items:center;"><input id="mtow" type="number" min="0" max="79015"><input id="mtowOwn" type="checkbox" class="big"></div>
@@ -162,18 +168,12 @@
 
         </div>
 
+        <script src="sw-loader.js"></script>
         <script src="assets/data/airports.js"></script>
+        <script src="assets/data/weights.js"></script>
         <script src="utils.js"></script>
         <script src="script.js"></script>
-
-        <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js', { scope: './' })
-                    .catch(console.error);
-            });
-        }
-</script>
+        <script src="scriptTwo.js"></script>
     </body>
 
 </html>

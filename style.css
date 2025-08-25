@@ -11,7 +11,6 @@
 
 html {
     font-size: 16px;
-    zoom: 90%;
 }
 
 body {
@@ -39,6 +38,7 @@ body {
     --input-bg: #fbfcfe;
     --readonly-bg: #f4f6fa;
     --focus-ring: 0 0 0 3px rgba(0, 102, 255, .12);
+    --super-mini: rgba(21, 24, 31, 0.3);
     color-scheme: light dark;
 }
 
@@ -67,7 +67,7 @@ body {
 
 .super-mini input {
     font-weight: bold;
-    box-shadow: 0 0 0 1px var(--text) !important;
+    box-shadow: 0 0 0 2px var(--super-mini) !important;
 }
 
 /* ==== LAYOUT ==== */
@@ -102,12 +102,13 @@ body {
 
 /* ==== GRID ==== */
 .fields {
-    display: grid;
+    display: flex;
     gap: 1.2rem;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
 }
 
 .field {
+    flex: 1;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -135,6 +136,16 @@ textarea {
     background: var(--input-bg);
     transition: .18s;
     text-transform: uppercase;
+}
+
+span {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: .6rem .8rem;
+    font-size: 1rem;
+    background: var(--input-bg);
+    transition: .18s;
 }
 
 input:focus,
@@ -245,6 +256,10 @@ input[type=checkbox].big:checked::before {
     width: 50px;
 }
 
+button {
+    cursor: pointer;
+}
+
 button.calc {
     background: var(--accent);
     color: #fff;
@@ -263,13 +278,18 @@ button.calc[disabled] {
     pointer-events: none;
 }
 
+#testModeIndicator {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+#testModeIndicator i {
+    margin-right: 5px;
+}
+
 #calcBtn {
     height: 62px;
     font-size: 1.2em;
-}
-
-#refreshPage {
-    height: 40px;
 }
 
 .for-refresh-button {
@@ -386,6 +406,7 @@ button.calc[disabled] {
         --input-bg: #0f1218;
         --readonly-bg: #141824;
         --focus-ring: 0 0 0 3px rgba(76, 141, 255, .28);
+        --super-mini: rgba(217, 221, 229, 0.3)
     }
 
     /* Точки, где были хардкоды */

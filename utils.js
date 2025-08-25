@@ -19,7 +19,7 @@ function get_airport_iata(airport_code) {
 }
 
 async function checkAuthSimbrief() {
-    if (TEST_MODE) {
+    if (NO_WLAN) {
         return true;
     }
 
@@ -45,7 +45,7 @@ async function checkAuthSimbrief() {
 }
 
 async function getRoutes(origin, destination) {
-    if (TEST_MODE) {
+    if (NO_WLAN) {
         return [
             "ANIKI G484 HMN L870 UNISO N155 AMEGO P65 ROMTA",
             "ANIKI G484 HMN L870 UNISO N155 BALOB T760 LUMAK T289 MATUB T187 ROMTA",
@@ -75,8 +75,8 @@ async function getRoutes(origin, destination) {
     }
 }
 
-async function calculateRoute(origin, destination, alternate, route_string, date_string) {
-    if (TEST_MODE) {
+async function calculateRoute(origin, destination, alternate, payloadActual, route_string, date_string) {
+    if (NO_WLAN) {
         return {
             "avg_wind_comp": -12.3,
             "route_distance": 1171.13,
@@ -93,6 +93,7 @@ async function calculateRoute(origin, destination, alternate, route_string, date
         origin: origin,
         destination: destination,
         alternate: alternate,
+        payload: payloadActual,
         route: route_string,
         date: date_string
     };
@@ -131,4 +132,28 @@ function setValue(elementId, newValue) {
 function formatTimeColon(input) {
     const parts = input.split(":");
     return parts.slice(0, 2).join(":");
+}
+
+
+function setInnerHtml(elementId, newInnerHTML, pauseBefore = 0) {
+    const element = document.getElementById(elementId);
+    const originalHTML = element.innerHTML;
+
+    if (pauseBefore > 0) {
+        setTimeout(() => {
+            element.innerHTML = newInnerHTML;
+        }, pauseBefore);
+    } else {
+        element.innerHTML = newInnerHTML;
+    }
+
+    return originalHTML;
+}
+
+
+function formatNumberThousands(input) {
+    if (typeof input === 'number' || (typeof input === 'string' && !isNaN(input))) {
+        return input.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    }
+    return input;
 }
