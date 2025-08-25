@@ -1,593 +1,179 @@
 <!DOCTYPE html>
 <html lang="ru">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Planner</title>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <title>Planner</title>
 
-    <!-- Fonts & Icons -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+        <!-- Fonts & Icons -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <!--<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">-->
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<!--        <link rel="stylesheet" href="assets/fontawesome/css/all.min.css">-->
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 
-    <style>
-        /* ==== RESET ==== */
-        *:where(:not(iframe, canvas, svg, img, video):not(svg *, symbol *)) {
-            all: unset;
-            display: revert;
-        }
+        <link rel="stylesheet" href="assets/fontawesome/css/all.min.css">
+        <link rel="stylesheet" href="style.css">
 
-        *,
-        *::before,
-        *::after {
-            box-sizing: border-box;
-        }
+        <!-- PWA meta -->
+        <link rel="manifest" href="manifest.webmanifest">
+        <meta name="theme-color" content="#1f4ea1">
 
-        html {
-            font-size: 16px;
-        }
+        <!-- iOS/iPadOS -->
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        <meta name="apple-mobile-web-app-title" content="Planner">
+    </head>
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #f5f7fa;
-            color: #15181f;
-            line-height: 1.35;
-        }
+    <body>
+        <div class="wrapper">
 
-        /* ==== THEME ==== */
-        :root {
-            --bg: #fff;
-            --border: #d9dee7;
-            --radius: 8px;
-            --accent: #0066ff;
-            --muted: #7a7f8d;
-            --err: #ff4d4f;
-            --hover: #e0e5f1;
-            --disabled: #eef1f6;
-            --shadow: 0 2px 5px rgba(0, 0, 0, .05);
-        }
-
-        /* Old OFP block */
-        .old{background:#FCEBEA !important;}
-
-        /* Current input block */
-        .current{background:#D4F8D4 !important;}
-
-        .alert{background:#FFF9DB !important;}
-
-        /* ==== LAYOUT ==== */
-        .wrapper {
-            max-width: 1080px;
-            margin: auto;
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-
-        .card {
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 1.5rem;
-            box-shadow: var(--shadow);
-            display: flex;
-            flex-direction: column;
-            gap: 1.25rem;
-        }
-
-        .card h2 {
-            display: flex;
-            align-items: center;
-            gap: .5rem;
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #2c303a;
-        }
-
-        /* ==== GRID ==== */
-        .fields {
-            display: grid;
-            gap: 1.2rem;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        }
-
-        .field {
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            gap: .45rem;
-        }
-
-        .field label {
-            font-size: .9rem;
-            font-weight: 500;
-            color: var(--muted);
-        }
-
-        .err input {
-            border-color: var(--err);
-        }
-
-        /* ==== INPUTS ==== */
-        input,
-        textarea {
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: .6rem .8rem;
-            font-size: .95rem;
-            background: #fbfcfe;
-            transition: .18s;
-            text-transform: uppercase;
-        }
-
-        input:focus,
-        textarea:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(0, 102, 255, .12);
-        }
-
-        input:disabled {
-            background: var(--disabled);
-            color: #6b707c;
-        }
-
-        input[readonly] {
-            background: #f4f6fa;
-            color: #393c46;
-        }
-
-        textarea {
-            min-height: 100px;
-            resize: none;
-            width: 100%;
-        }
-
-        input[type=number]::-webkit-inner-spin-button,
-        input[type=number]::-webkit-outer-spin-button {
-            appearance: none;
-            margin: 0
-        }
-
-        input[type=number] {
-            appearance: textfield
-        }
-
-        /* ==== BIG CHECKBOX ==== */
-        input[type=checkbox].big {
-            appearance: none;
-            width: 30px;
-            height: 30px;
-            border: 2px solid var(--border);
-            border-radius: 7px;
-            display: inline-grid;
-            place-content: center;
-            cursor: pointer;
-            transition: .15s;
-        }
-
-        input[type=checkbox].big::before {
-            content: '\f00c';
-            font: 900 18px/1 "Font Awesome 6 Free";
-            color: #fff;
-            transform: scale(0);
-            transition: .12s;
-        }
-
-        input[type=checkbox].big:checked {
-            background: var(--accent);
-            border-color: var(--accent);
-        }
-
-        input[type=checkbox].big:checked::before {
-            transform: scale(1);
-        }
-
-        /* ==== BUTTONS ==== */
-        .icon-btn {
-            background: #eef1f6;
-            border-radius: var(--radius);
-            width: 42px;
-            height: 42px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: .15s;
-        }
-
-        .icon-btn:hover {
-            background: var(--hover);
-            transform: scale(1.06);
-        }
-
-        button.calc {
-            background: var(--accent);
-            color: #fff;
-            padding: .6rem 1.25rem;
-            border-radius: var(--radius);
-            display: flex;
-            align-items: center;
-            gap: .55rem;
-            font-weight: 500;
-            transition: .15s;
-            font-size: .9rem;
-        }
-
-        button.calc:hover:not([disabled]) {
-            background: #005ce6;
-            transform: scale(1.03);
-        }
-
-        button.calc[disabled] {
-            opacity: .45;
-            pointer-events: none;
-        }
-
-        #calcBtn {
-            height: 62px;
-        }
-
-        /* ==== ROUTE FLEX ROW ==== */
-        .route-row {
-            display: flex;
-            gap: 1.2rem;
-            flex-wrap: wrap;
-        }
-
-        .route-left {
-            flex: 1 1 57%;
-            min-width: 300px;
-            display: flex;
-            gap: .9rem;
-        }
-
-        .route-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: .9rem;
-        }
-
-        .route-right {
-            flex: 1 1 250px;
-            min-width: 230px;
-            display: flex;
-            flex-direction: column;
-            gap: .9rem;
-        }
-
-        /* ==== SUB ==== */
-        .sub {
-            font-size: .95rem;
-            font-weight: 600;
-            margin-top: .75rem;
-            color: #393c46;
-        }
-
-        /* ==== MOBILE ==== */
-        @media(max-width:640px) {
-            .wrapper {
-                padding: 1rem;
-            }
-
-            .fields {
-                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            }
-
-            .card {
-                padding: 1.25rem;
-            }
-
-            .route-row {
-                flex-direction: column;
-            }
-
-            .route-left,
-            .route-right {
-                flex: 1 1 100%;
-            }
-        }
-    </style>
-</head>
-
-<body>
-    <div class="wrapper">
-
-        <!-- ═══ 1. Aircraft (unchanged) ═══════════════════ -->
-        <section class="card current">
-            <h2><i class="fa-solid fa-plane"></i>Актуальные данные</h2>
-            <div class="fields">
-                <div class="field"><label>Номер ВС</label><input id="acnum" type="number" min="73093" max="73129"></div>
-                <div class="field"><label>Откуда</label><input id="icaoFrom" type="text" maxlength="3" pattern="[A-Za-z]{3}"></div>
-                <div class="field"><label>Куда</label><input id="icaoTo" type="text" maxlength="3" pattern="[A-Za-z]{3}"></div>
-                <div class="field"><label>PAYLOAD</label><input id="payload1" type="number" min="0" max="25000"></div>
-            </div>
-            <div class="fields">
-                <div class="field"><label>MTOW (PERF)</label>
-                    <div style="display:flex;gap:.6rem;align-items:center;"><input id="mtow" type="number" min="0" max="79015"><input id="mtowOwn" type="checkbox" class="big"></div>
-                </div>
-                <div class="field"><label>MLDW (PERF)</label>
-                    <div style="display:flex;gap:.6rem;align-items:center;"><input id="mldw" type="number" min="0" max="66360"><input id="mldwOwn" type="checkbox" class="big"></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ═══ 2. Old SFP (unchanged) ════════════════════ -->
-        <section class="card old">
-            <h2><i class="fa-solid fa-clock-rotate-left"></i>Старый SFP</h2>
-            <div class="fields">
-                <div class="field"><label>TRIP FUEL</label><input id="tripFuelOld" type="number" min="0" max="21000"></div>
-                <div class="field"><label>TRIP TIME</label><input id="ttOld" type="text" placeholder="HH:MM"></div>
-                <div class="field"><label>PAYLOAD</label><input id="payload2" type="number" min="0" max="25000"></div>
-                <div class="field"><label>FOB</label><input id="totalFuelOld" type="number" min="0" max="21000"></div>
-                <div class="field"><label>AD</label><input id="ad" type="number" min="0" max="4000"></div>
-                <div class="field"><label>Номер ВС</label><input id="acnumOld" type="number" min="73093" max="73129"></div>
-                <div class="field"><label>AVG W/C</label><input id="avgwcOld" type="number" min="-150" max="150"></div>
-                <div class="field"><label>ELDW</label><input id="eldwOld" type="number" min="0" max="66360"></div>
-            </div>
-        </section>
-
-        <!-- ═══ 3. Current Route (UPDATED) ═══════════════ -->
-        <section class="card">
-            <h2><i class="fa-solid fa-route"></i>Текущий маршрут</h2>
-
-            <div class="route-row">
-                <!-- textarea + buttons -->
-                <div class="route-left">
-                    <textarea id="route" placeholder="UUEE TOGMO3H ABAGI..." disabled></textarea>
-                    <div class="route-buttons">
-                        <button class="icon-btn" id="pasteR" title="Вставить" disabled><i class="fa-solid fa-clipboard"></i></button>
-                        <button class="icon-btn" id="clrR" title="Очистить" disabled><i class="fa-solid fa-xmark"></i></button>
+            <!-- ═══ 1. Aircraft (unchanged) ═══════════════════ -->
+            <section class="card current">
+                <h2><i class="fa-solid fa-plane"></i>Данные о рейсе</h2>
+                <div class="fields">
+                    <div class="field"><label>Номер ВС</label><input id="acnum" placeholder="73XXX" type="number" min="73093" max="73129"></div>
+                    <div class="field"><label>Вылет</label><input id="icaoFrom" placeholder="ICAO / IATA" type="text" maxlength="4" pattern="[A-Za-z]{3,4}"></div>
+                    <div class="field"><label>Назначение</label><input id="icaoTo" placeholder="ICAO / IATA" type="text" maxlength="4" pattern="[A-Za-z]{3,4}"></div>
+                    <div class="field"><label>Запасной</label><input id="icaoAlt" placeholder="ICAO / IATA" type="text" maxlength="4" pattern="[A-Za-z]{3,4}"></div>
+                    <div class="field for-refresh-button">
+                        <button class="calc" id="refreshPage" onclick='location.reload()'><i class="fa-solid fa-recycle"></i></button>
                     </div>
                 </div>
+            </section>
 
-                <!-- ETD + wind + AVG -->
-                <div class="route-right">
-                    <div class="field">
-                        <label>ETD (UTC)</label>
-                        <input id="dtUtc" type="datetime-local" disabled>
+            <!-- ═══ 2. Old SFP (unchanged) ════════════════════ -->
+            <section class="card old">
+                <h2><i class="fa-solid fa-clock-rotate-left"></i>Старый SFP</h2>
+                <div class="fields">
+                    <div class="field"><label>TRIP FUEL</label><input id="tripFuelOld" type="number" min="0" max="21000"></div>
+                    <div class="field"><label>TRIP TIME</label><input id="ttOld" type="text" placeholder="HH:MM"></div>
+                    <div class="field"><label>PAYLOAD</label><input id="payload2" type="number" min="0" max="25000"></div>
+                    <div class="field"><label>FOB</label><input id="totalFuelOld" type="number" min="0" max="21000"></div>
+                    <div class="field"><label>AD</label><input id="ad" type="number" min="0" max="4000"></div>
+                    <div class="field"><label>Номер ВС</label><input id="acnumOld" placeholder="73XXX" type="number" min="73093" max="73129"></div>
+                    <div class="field"><label>AVG W/C</label><input id="avgwcOld" type="number" min="-150" max="150"></div>
+                    <div class="field"><label>ELDW</label><input id="eldwOld" type="number" min="0" max="66360"></div>
+                </div>
+            </section>
+
+            <!-- ═══ 3. Current Route (UPDATED) ═══════════════ -->
+            <section class="card">
+                <h2><i class="fa-solid fa-route"></i>Актуальные данные</h2>
+
+                <div class="route-row">
+                    <!-- textarea + buttons -->
+                    <div class="route-left">
+                        <div class="field" style="flex: 1;">
+                            <label id="routeLabel">ROUTE</label>
+                            <select id="routeDropdown">
+                                <option value="no-item">Нет маршрутов</option>
+                            </select>
+                            <textarea id="route" placeholder="PILUG B155 IKT A815 TUTEK..."></textarea>
+                        </div>
+                        <div class="route-buttons">
+                            <button class="icon-btn" id="requestRoutes" title="Список маршрутов"><i class="fa-solid fa-download"></i></button>
+                            <button class="icon-btn" id="copyRoute" title="Копировать"><i class="fa-solid fa-copy"></i></button>
+                            <button class="icon-btn" id="clrR" title="Очистить"><i class="fa-solid fa-trash"></i></button>
+                        </div>
                     </div>
-                    <button class="calc" id="windBtn" disabled><i class="fa-solid fa-wind"></i>Узнать&nbspветер</button>
-                    <div class="field current">
-                        <label>AVG W/C</label>
-                        <input id="avgwcNew" type="number" min="-150" max="150">
+
+                    <!-- ETD + wind + AVG -->
+                    <div class="route-middle">
+                        <div class="field">
+                            <label>ETD (UTC)</label>
+                            <div class='date-field'>
+                                <input id="dtUtc" type="datetime-local">
+                                <button class="icon-btn" id="setNowDate"><i class="fa-solid fa-calendar-check"></i></button>
+                            </div>
+                        </div>
+                        <button class="calc" id="windBtn"><i class="fa-solid fa-wind"></i>Рассчитать и получить ветер</button>
+                        <div class="field current">
+                            <label id='avgWindCompLabel'>AVG W/C</label>
+                            <input id="avgwcNew" type="number" min="-150" max="150">
+                        </div>
+                    </div>
+
+                    <div class="route-right">
+                        <div class="field"><label>PAYLOAD</label><input id="payload1" type="number" min="0" max="25000"></div>
+                        <div style="display: flex; gap: 1rem; align-items: center;">
+                            <div class="field"><label>MTOW (PERF)</label>
+                                <div style="display:flex;gap:.6rem;align-items:center;"><input id="mtow" type="number" min="0" max="79015"><input id="mtowOwn" type="checkbox" class="big"></div>
+                            </div>
+                            <div class="field"><label>MLDW (PERF)</label>
+                                <div style="display:flex;gap:.6rem;align-items:center;"><input id="mldw" type="number" min="0" max="66360"><input id="mldwOwn" type="checkbox" class="big"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <!-- кнопка-триггер -->
-        <button class="calc" id="calcBtn"><i class="fa-solid fa-equals"></i> Вычислить</button>
+            <!-- кнопка-триггер -->
+            <button class="calc" id="calcBtn"><i class="fa-solid fa-arrow-down"></i> Вычислить</button>
 
-        <!-- ═══ 4. Results (unchanged) ═══════════════════ -->
-        <section class="card">
-            <h2><i class="fa-solid fa-calculator"></i>Вычисленные значения</h2>
-            <div class="fields">
-                <div class="field alert"><label>Номер ВС</label><input id="accNumDub" readonly value="-"></div>
-                <div class="field current"><label>EZFW</label><input id="ezfw" readonly value="-"></div>
-                <div class="field"><label>DOW</label><input id="dow" readonly value="-"></div>
-                <div class="field"><label>DOI</label><input id="doi" readonly value="-"></div>
-            </div>
-            <div class="sub">Заполнение SFP</div>
-            <div class="fields">
-                <div class="field alert"><label>TRIP FUEL</label><input id="tripFuelCalc" readonly value="-"></div>
-                <div class="field alert"><label>TRIP TIME</label><input id="tripTimeCalc" readonly value="00:00"></div>
-                <div class="field alert"><label>PAYLOAD</label><input id="payloadActualDub" readonly value="-"></div>
-            </div>
-            <div class="fields">
-                <div class="field alert"><label>FOB F2</label><input id="f2Calc" readonly value="-"></div>
-                <div class="field"><label>FOB Fтип</label><input id="fTypeCalc" readonly value="-"></div>
-                <div class="field"><label>FOB Fad</label><input id="fADCalc" readonly value="-"></div>
-            </div>
-            <div class="sub">Ограничения по заправке</div>
-            <div class="fields">
-                <div class="field old"><label>Fmax T/O</label><input id="FmaxTO" readonly value="-"></div>
-                <div class="field old"><label>Fmax LDG</label><input id="FmaxLDG" readonly value="-"></div>
-                <div class="field old"><label>Fmax TANKS</label><input id="FmaxTanks" readonly value="-"></div>
-            </div>
-        </section>
+            <!-- ═══ 4. Results (unchanged) ═══════════════════ -->
+            <section class="card">
+                <h2><i class="fa-solid fa-calculator"></i>Вычисленные значения</h2>
+                <div class="fields">
+                    <div class="field"><label>Номер ВС</label><input id="accNumDub" readonly value="-"></div>
+                    <div class="field"><label>EZFW</label><input id="ezfw" readonly value="-"></div>
+                    <div class="field"><label>DOW</label><input id="dow" readonly value="-"></div>
+                    <div class="field"><label>DOI</label><input id="doi" readonly value="-"></div>
+                    <div class="field"><label>PAYLOAD</label><input id="payloadActualDub" readonly value="-"></div>
+                </div>
+                <div class="sub">Варианты заправки</div>
+                <div class="sub-mini">Перерасчет SFP</div>
+                <div class="fields">
+                    <div class="field"><label>AD</label><input id="adCalc" readonly value="-"></div>
+                    <div class="field"><label>TRIP FUEL</label><input id="tripFuelCalc" readonly value="-"></div>
+                    <div class="field"><label>TRIP TIME</label><input id="tripTimeCalc" readonly value="00:00"></div>
+                    <div class="field"><label>FOB</label><input id="f2Calc" readonly value="-"></div>
+                </div>
+                <div class="sub-mini">Расчет SimBrief</div>
+                <div class="fields">
+                    <div class="field"><label>AD</label><input id="adCalcSim" readonly value="-"></div>
+                    <div class="field"><label>TRIP FUEL</label><input id="tripFuelCalcSim" readonly value="-"></div>
+                    <div class="field"><label>TRIP TIME</label><input id="tripTimeCalcSim" readonly value="00:00"></div>
+                    <div class="field"><label>FOB</label><input id="f2CalcSim" readonly value="-"></div>
+                </div>
+                <div class="sub-mini">Дополнительно</div>
+                <div class="fields">
+                    <div class="field"><label>FOB (типовая из таблицы)</label><input id="fTypeCalc" readonly value="-"></div>
+                    <div class="field"><label>FOB (AD * 6 + 3000)</label><input id="fADCalc" readonly value="-"></div>
+                    <div class="field super"><label id="recFobLabel">Рекомендуемый</label><input id="fSuperTotal" readonly value="-"></div>
+                </div>
+                <div class="sub">Ограничения</div>
+                <div class="sub-mini">MAX TOTAL FOB</div>
+                <div class="fields">
+                    <div class="field"><label>По MTOW</label><input id="FmaxTO" readonly value="-"></div>
+                    <div class="field"><label>По MLDW</label><input id="FmaxLDG" readonly value="-"></div>
+                    <div class="field"><label>По MAX TANKS</label><input id="FmaxTanks" readonly value="-"></div>
+                    <div class="field super-mini"><label>Используемый MAX FOB</label><input id="FmaxUsable" readonly value="-"></div>
+                </div>
+                <div class="sub-mini">MAX PAYLOAD</div>
+                <div class="fields">
+                    <div class="field"><label>По MZFW</label><input id="payloadMaxMZFW" readonly value="-"></div>
+                    <div class="field"><label>По MTOW</label><input id="payloadMaxMTOW" readonly value="-"></div>
+                    <div class="field"><label>По MLDW</label><input id="payloadMaxMLDW" readonly value="-"></div>
+                    <div class="field super-mini"><label>Используемый MAX PLD</label><input id="payloadMaxUsable" readonly value="-"></div>
+                </div>
+            </section>
 
-    </div>
+        </div>
 
-    <script>
-        /* defaults for MTOW/MLDW */
-        const bindDefault = (i, c, d) => {
-            const inp = document.getElementById(i),
-                cb = document.getElementById(c);
-            const s = () => {
-                cb.checked ? inp.disabled = false : (inp.disabled = true, inp.value = d)
-            };
-            cb.addEventListener('change', s);
-            s();
-        };
-        bindDefault('mtow', 'mtowOwn', 79015);
-        bindDefault('mldw', 'mldwOwn', 66360);
+        <script src="assets/data/airports.js"></script>
+        <script src="utils.js"></script>
+        <script src="script.js"></script>
 
-        /* UTC now in ETD */
-        (() => {
-            const z = n => String(n).padStart(2, '0'),
-                d = new Date();
-            dtUtc.value = `${d.getUTCFullYear()}-${z(d.getUTCMonth()+1)}-${z(d.getUTCDate())}T${z(d.getUTCHours())}:${z(d.getUTCMinutes())}`
-        })();
-
-        /* HH:MM mask */
-        ttOld.addEventListener('input', e => {
-            let v = e.target.value.replace(/\D/g, '').slice(0, 4);
-            if (v.length >= 3) {
-                let h = +v.slice(0, 2),
-                    m = +v.slice(2);
-                h = h > 23 ? 23 : h;
-                m = m > 59 ? 59 : m;
-                v = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
-            }
-            e.target.value = v;
-            e.target.parentElement.classList.toggle('err', !/^([01]\d|2[0-3]):[0-5]\d$/.test(v));
-        });
-
-        /* route helpers & wind button enable */
-        const routeTA = document.getElementById('route'),
-            windBtn = document.getElementById('windBtn');
-        const chk = () => windBtn.disabled = !routeTA.value.trim();
-        routeTA.addEventListener('input', chk);
-        chk();
-        pasteR.onclick = async () => {
-            try {
-                routeTA.value = await navigator.clipboard.readText();
-                chk()
-            } catch {}
-        };
-        clrR.onclick = () => {
-            routeTA.value = '';
-            chk();
-        };
-
-        /* range validation */
-        document.querySelectorAll('input[type=number]').forEach(inp => inp.addEventListener('input', () => {
-            const v = +inp.value;
-            inp.parentElement.classList.toggle('err', !(inp.value === '' || v >= +inp.min && v <= +inp.max));
-        }));
-
-        /* ICAO 4-letter */
-        ['icaoFrom', 'icaoTo'].forEach(id => {
-            const el = document.getElementById(id);
-            el.addEventListener('input', () => el.parentElement.classList.toggle('err', !/^[A-Za-z]{3}$/.test(el.value)));
-        });
-
-        document.getElementById('calcBtn').addEventListener('click', calculate);
-
-        function setValue(id, v) {
-            const el = document.getElementById(id);
-            el.value = v;
-            el.parentElement.classList.toggle('err', false);
+        <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js', { scope: './' })
+                    .catch(console.error);
+            });
         }
-
-        function getValue(id) {
-            return document.getElementById(id).value;
-        }
-
-        function formatDateToCustomString(date) {
-            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            const d = new Date(date);
-            return `${String(d.getDate()).padStart(2, '0')} ${months[d.getMonth()]} ${d.getFullYear()} - ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
-        }
-
-        function extractPoints(route) {
-            const points = route.trim().split(/\s+/);
-            if (points.length < 2) return null;
-            return {
-                origin: points[0].toUpperCase(),
-                destination: points[points.length - 1].toUpperCase()
-            };
-        }
-
-        windBtn.addEventListener('click', async () => {
-            const formattedDate = formatDateToCustomString(dtUtc.value);
-            const points = extractPoints(route.value);
-
-            if (!points) return;
-
-        })
-
-        function goRound(value, precision=10) {
-            return Math.ceil(value / precision) * precision
-        }
-
-        function calculate() {
-            // собираем данные
-            const data = {
-                acNum: acnum.value,
-                icaoFrom: (icaoFrom.value || '').toUpperCase(),
-                icaoTo: (icaoTo.value || '').toUpperCase(),
-                payload1: parseInt(payload1.value || 0),
-                mtow: parseInt(mtow.value || 79015),
-                mldw: parseInt(mldw.value || 66360),
-                ad: parseInt(ad.value || 0),
-                tripFuel: parseInt(tripFuelOld.value || 0),
-                totalFuel: parseInt(totalFuelOld.value || 0),
-                tripTimeMin: (() => { // HH:MM → минуты
-                    const [h, m] = ttOld.value.split(':').map(Number);
-                    return h * 60 + m;
-                })(),
-                avgwcOld: parseInt(avgwcOld.value || 0),
-                acnumOld: acnumOld.value,
-                eldwOld: parseInt(eldwOld.value || 0),
-                payload2: parseInt(payload2.value || 0),
-                route: route.value || '',
-                etdUtc: dtUtc.value,
-                avgwcNew: parseInt(avgwcNew.value || 0)
-            };
-
-            if (data.payload1) {
-                setValue('payloadActualDub', data.payload1);
-            }
-
-            const weights = {'73093': {'dow': '43990', 'doi': '45,53'}, '73094': {'dow': '43801', 'doi': '45,15'}, '73095': {'dow': '43870', 'doi': '45,34'}, '73096': {'dow': '43956', 'doi': '43,82'}, '73097': {'dow': '43895', 'doi': '45,18'}, '73098': {'dow': '43700', 'doi': '45,01'}, '73099': {'dow': '43760', 'doi': '43,95'}, '73100': {'dow': '43788', 'doi': '43,98'}, '73101': {'dow': '43725', 'doi': '45,01'}, '73102': {'dow': '43730', 'doi': '43,93'}, '73103': {'dow': '43653', 'doi': '46,07'}, '73104': {'dow': '43903', 'doi': '45,00'}, '73105': {'dow': '43920', 'doi': '43,88'}, '73106': {'dow': '43827', 'doi': '46,49'}, '73107': {'dow': '43761', 'doi': '45,10'}, '73108': {'dow': '43880', 'doi': '45,50'}, '73109': {'dow': '43840', 'doi': '44,82'}, '73110': {'dow': '43736', 'doi': '45,22'}, '73111': {'dow': '44045', 'doi': '45,90'}, '73112': {'dow': '43655', 'doi': '44,85'}, '73113': {'dow': '43843', 'doi': '44,16'}, '73114': {'dow': '43900', 'doi': '43,73'}, '73115': {'dow': '43825', 'doi': '44,15'}, '73116': {'dow': '43958', 'doi': '44,84'}, '73117': {'dow': '43763', 'doi': '43,78'}, '73118': {'dow': '43930', 'doi': '43,20'}, '73119': {'dow': '43945', 'doi': '44,40'}, '73120': {'dow': '43705', 'doi': '43,86'}, '73121': {'dow': '43700', 'doi': '44,88'}, '73122': {'dow': '44110', 'doi': '46,35'}, '73123': {'dow': '43895', 'doi': '44,55'}, '73124': {'dow': '43791', 'doi': '44,15'}, '73125': {'dow': '43823', 'doi': '44,46'}, '73126': {'dow': '43979', 'doi': '46,75'}, '73127': {'dow': '43875', 'doi': '44,98'}, '73128': {'dow': '43918', 'doi': '45,70'}, '73129': {'dow': '43821', 'doi': '44,45'}}
-
-            let dow = null;
-            if (data.acNum && data.payload1) {
-                dow = parseInt(weights[data.acNum].dow || '44_500');
-                const doi = weights[data.acNum].doi;
-                const ezfw = parseInt(data.payload1) + dow;
-
-                setValue('accNumDub', data.acNum);
-                setValue('ezfw', ezfw);
-                setValue('dow', dow);
-                setValue('doi', doi);
-            }
-
-            if (data.icaoFrom && data.icaoTo) {
-                const typeFuelOptions = {'ABA': 14200, 'AUH': 16100, 'COV': 15400, 'SCO': 10700, 'AKX': 8300, 'ALA': 13700, 'AYT': 17400, 'KVK': 8200, 'ARH': 8100, 'NQZ': 10600, 'ASF': 9900, 'GUW': 9000, 'GYD': 11000, 'BAX': 12200, 'FRU': 12900, 'BJV': 16300, 'BHK': 11700, 'OGZ': 11600, 'VOG': 8600, 'RGK': 13200, 'GRV': 11200, 'LWN': 9100, 'GNJ': 11000, 'DLM': 16200, 'DEL': 18800, 'DOH': 16800, 'DXB': 16500, 'DWC': 16300, 'SVX': 7900, 'EVN': 12700, 'IJK': 6900, 'ADB': 16300, 'IKT': 17000, 'IKU': 13300, 'KZN': 6000, 'CAI': 17800, 'KGD': 11400, 'KGF': 11300, 'KEJ': 12700, 'KSN': 9300, 'KJA': 14400, 'KZO': 11600, 'MQF': 8400, 'MCX': 10600, 'MRV': 11700, 'MSQ': 7700, 'MMK': 9600, 'GOJ': 5200, 'IGT': 11300, 'NAL': 10600, 'NJC': 10700, 'NBC': 6300, 'NOZ': 12800, 'OVB': 12300, 'NUX': 11100, 'OMS': 11700, 'REN': 8100, 'OSW': 8700, 'OSS': 13700, 'PEZ': 5500, 'PEE': 7400, 'LED': 6800, 'KUF': 6400, 'SKD': 12000, 'SKX': 6200, 'GSV': 6700, 'AER': 12100, 'STW': 11000, 'IST': 17300, 'SGC': 9800, 'SCW': 7500, 'TAS': 13000, 'IKA': 13900, 'TOF': 12700, 'TJM': 9500, 'UBN': 18600, 'UUD': 17300, 'ULV': 5600, 'UGC': 11100, 'UFA': 7800, 'FEG': 12900, 'HMA': 9200, 'HRG': 19000, 'CSY': 5600, 'CEK': 8100, 'SSH': 19000, 'CIT': 12100, 'YKS': 20100, 'ESL': 11900}
-
-                if (data.icaoFrom === 'SVO') {
-                    setValue('fTypeCalc', typeFuelOptions[data.icaoTo])
-                } else if (data.icaoTo === 'SVO') {
-                    setValue('fTypeCalc', typeFuelOptions[data.icaoFrom])
-                } else {
-                    setValue('fTypeCalc', 'UNKNOWN')
-                }
-            }
-
-            const velocity = 420
-            let tripFuelNew = null;
-            if (data.tripFuel && data.tripTimeMin && data.avgwcOld && data.avgwcNew && data.ad) {
-                const tripTimeMinNew = ((velocity + data.avgwcOld) * data.tripTimeMin) / (velocity + data.avgwcNew)
-
-                const h = Math.floor(tripTimeMinNew / 60);
-                const m = Math.round(tripTimeMinNew % 60);
-                setValue('tripTimeCalc', `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`);
-
-                tripFuelNew = goRound(data.tripFuel * (tripTimeMinNew / data.tripTimeMin));
-                setValue('tripFuelCalc', tripFuelNew);
-
-                const newAd = goRound(data.ad * (tripTimeMinNew / data.tripTimeMin));
-                console.log(newAd);
-                const fAD = goRound(newAd * 6 + 3000);
-                setValue('fADCalc', fAD);
-            }
-
-            let f2 = null;
-            if (tripFuelNew && data.totalFuel && data.tripFuel) {
-                f2 = goRound(data.totalFuel - data.tripFuel + tripFuelNew);
-                setValue('f2Calc', f2);
-            }
-
-            if (data.mtow && data.mldw && dow && data.payload1 && data.payload2 && data.eldwOld && f2) {
-                const FmaxTO = data.mtow - (data.payload1 + dow);
-
-                let extraPerDow = 0;
-                if (data.acnumOld) {
-                    const dowOld = parseInt(weights[data.acnumOld].dow || '43_000');
-                    extraPerDow = dowOld - dow;
-                }
-                const FmaxLDG = data.mldw - data.eldwOld + (data.payload2 - data.payload1) + f2 + extraPerDow;
-
-                setValue('FmaxTO', FmaxTO);
-                setValue('FmaxLDG', FmaxLDG);
-                setValue('FmaxTanks', '20800');
-            }
-
-        }
-    </script>
-</body>
+</script>
+    </body>
 
 </html>

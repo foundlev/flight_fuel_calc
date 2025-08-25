@@ -1,0 +1,11 @@
+{
+  "name": "Planner",
+  "short_name": "Planner",
+  "start_url": "./?source=pwa",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#1f4ea1",
+  "background_color": "#0f1115",
+  "icons": []
+}
