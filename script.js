@@ -96,6 +96,7 @@ function chk() {
 }
 
 routeTA.addEventListener('input', chk);
+document.getElementById('payloadActual').addEventListener('input', chk);
 chk();
 
 function copyRouteToUser() {
