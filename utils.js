@@ -1,3 +1,5 @@
+let lastPlanHTML = '';
+
 function get_airport_icao(airport_code) {
     if (airport_code.length === 4) {
         return airport_code;
@@ -75,14 +77,15 @@ async function getRoutes(origin, destination) {
     }
 }
 
-async function calculateRoute(origin, destination, alternate, payloadActual, route_string, date_string) {
+async function calculateRoute(origin, destination, alternate, payloadActual, route_string, date_string, fuelExtra) {
     if (NO_WLAN) {
         return {
             "avg_wind_comp": -12.3,
             "route_distance": 1171.13,
             "air_distance": 1152.66,
             "trip_fuel": 5400.0,
-            "alternate": "UUWW"
+            "alternate": "UUWW",
+            "text": "empty"
         };
     }
 
@@ -95,7 +98,8 @@ async function calculateRoute(origin, destination, alternate, payloadActual, rou
         alternate: alternate,
         payload: payloadActual,
         route: route_string,
-        date: date_string
+        date: date_string,
+        extra: fuelExtra
     };
 
     try {
@@ -156,4 +160,54 @@ function formatNumberThousands(input) {
         return input.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
     }
     return input;
+}
+
+function extractPlanHTML(textField) {
+    if (!textField) return null;
+
+    // 1) Самый частый кейс сейчас: text — это уже HTML-фрагмент (<div>...</div>)
+    if (typeof textField === 'string') {
+        const raw = textField.trim();
+
+        // Если сразу начинается с тега — это готовый HTML. Просто вернуть как есть.
+        if (raw.startsWith('<')) {
+            return raw;
+        }
+
+        // Попробуем распарсить как JSON-строку (вдруг вернут {"plan_html":"..."}).
+        try {
+            const obj = JSON.parse(raw);
+            if (obj && obj.plan_html) return obj.plan_html;
+        } catch (_) { /* not JSON, continue */
+        }
+
+        // Поддержка «питоновского» словаря в строке
+        try {
+            const normalized = raw.replace(/\\n/g, '\n').replace(/\\t/g, '\t');
+            const fixed = normalized
+                .replace(/(['"])?([a-zA-Z0-9_]+)(['"])?\s*:/g, '"$2":')
+                .replace(/'/g, '"');
+            const obj = JSON.parse(fixed);
+            if (obj && obj.plan_html) return obj.plan_html;
+        } catch (_) { /* ignore */
+        }
+
+        // Фоллбэк: вытащить через регэксп
+        const m = raw.match(/plan_html'?\s*:\s*'([\s\S]*)'(?=\s*}\s*$)/);
+        if (m) {
+            return m[1]
+                .replace(/\\"/g, '"')
+                .replace(/\\n/g, '\n')
+                .replace(/\\t/g, '\t');
+        }
+
+        return null;
+    }
+
+    // 2) Если это объект с ключом plan_html
+    if (typeof textField === 'object' && textField.plan_html) {
+        return textField.plan_html;
+    }
+
+    return null;
 }

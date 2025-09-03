@@ -88,7 +88,26 @@
                     <!-- ETD + wind + AVG -->
                     <div class="route-middle">
                         <div class="field">
-                            <div class="field"><label>PAYLOAD</label><input id="payloadActual" type="number" min="0" max="25000"></div>
+                            <div class="field-grid">
+                                <div>
+                                    <label for="payloadActual">PAYLOAD</label>
+                                    <input id="payloadActual" type="number" min="0" max="25000">
+                                </div>
+                                <div>
+                                    <label for="extraDropdown">EXTRA</label>
+                                    <select id="extraDropdown">
+                                        <option value="extra:0">0:00</option>
+                                        <option value="extra:0.5" selected>0:30</option>
+                                        <option value="extra:0.75">0:45</option>
+                                        <option value="extra:1.0">1:00</option>
+                                        <option value="extra:1.25">1:15</option>
+                                        <option value="extra:1.5">1:30</option>
+                                        <option value="extra:1.75">1:45</option>
+                                        <option value="extra:2.0">2:00</option>
+                                    </select>
+                                </div>
+                            </div>
+
                             <label>ETD (UTC)</label>
                             <div class='date-field'>
                                 <input id="dtUtc" type="datetime-local">
@@ -142,6 +161,9 @@
                     <div class="field"><label>TRIP FUEL</label><input id="tripFuelCalcSim" readonly value="-"></div>
                     <div class="field"><label>TRIP TIME</label><input id="tripTimeCalcSim" readonly value="00:00"></div>
                     <div class="field"><label>FOB</label><input id="f2CalcSim" readonly value="-"></div>
+                    <div class="field" style="flex: 0; justify-content: end;">
+                        <button class="icon-btn" id="setNowDat1e"><i class="fa-solid fa-print"></i></button>
+                    </div>
                 </div>
                 <div class="sub-mini">Дополнительно</div>
                 <div class="fields">
@@ -166,6 +188,21 @@
                 </div>
             </section>
 
+        </div>
+
+        <!-- OFP / RouteInfo Modal -->
+        <div id="ofpModal" class="modal" aria-hidden="true">
+            <div class="modal-backdrop" data-close="ofpModal"></div>
+            <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="ofpTitle">
+                <header class="modal-header">
+                    <h3 id="ofpTitle"><i class="fa-solid fa-file-lines"></i> План полёта (OFP)</h3>
+                    <button class="icon-btn close" id="ofpClose" title="Закрыть"><i class="fa-solid fa-xmark"></i></button>
+                </header>
+                <div class="modal-body">
+                    <!-- Сюда зальём HTML из plan_html -->
+                    <div id="ofpContent" class="ofp-content"></div>
+                </div>
+            </div>
         </div>
 
         <script src="sw-loader.js"></script>

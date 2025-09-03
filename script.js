@@ -102,7 +102,20 @@ chk();
 function copyRouteToUser() {
     let toHtml = `<i class="fa-solid fa-check"></i>`;
     if (routeTA) {
-        navigator.clipboard.writeText(routeTA.value).then(() => {
+
+        let routeValue = routeTA.value;
+        const icaoFromValue = icaoFromInput.value.toUpperCase();
+        const icaoToValue = icaoToInput.value.toUpperCase();
+
+        if (!routeValue.startsWith(icaoFromValue)) {
+            routeValue = icaoFromValue + ' ' + routeValue;
+        }
+
+        if (!routeValue.endsWith(icaoToValue)) {
+            routeValue = routeValue + ' ' + icaoToValue;
+        }
+
+        navigator.clipboard.writeText(routeValue).then(() => {
             toHtml = `<i class="fa-solid fa-check"></i>`;
         }).catch(err => {
             toHtml = `<i class="fa-solid fa-xmark"></i>`;
@@ -152,6 +165,11 @@ windBtn.addEventListener('click', async () => {
         return;
     }
 
+    const fuelFlow = 2500;
+
+    const selectExtra = document.getElementById("extraDropdown");
+    const fuelExtra = (parseFloat(selectExtra.value.split(":")[1]) * fuelFlow).toString();
+
     const originalHTML = windBtn.innerHTML;
     windBtn.innerHTML = '<i class="fa-solid fa-tower-broadcast"></i>Проверяем сервер...';
 
@@ -159,7 +177,7 @@ windBtn.addEventListener('click', async () => {
         if (authenticated) {
             windBtn.innerHTML = '<i class="fa-solid fa-spinner"></i> Получаем информацию...';
 
-            calculateRoute(originalIcao, destinationIcao, altIcao, payloadActual, routeString, formattedDate).then(routeInfo => {
+            calculateRoute(originalIcao, destinationIcao, altIcao, payloadActual, routeString, formattedDate, fuelExtra).then(routeInfo => {
 
                 // {avg_wind_comp: 25, route_distance: 1219, air_distance: 1147, trip_fuel: 6948, trip_time: "02:49:27", total_fob: 11537, alternate: "UNOO"}
 
@@ -171,6 +189,25 @@ windBtn.addEventListener('click', async () => {
                     setValue('tripFuelCalcSim', routeInfo['trip_fuel']);
                     setValue('tripTimeCalcSim', formatTimeColon(routeInfo['trip_time']));
                     setValue('f2CalcSim', routeInfo['total_fob']);
+
+                    // Нужно routeInfo['text']
+
+                    try {
+                        const planHTML = extractPlanHTML(routeInfo['text']);
+
+                        console.log('asd');
+                        console.log(planHTML);
+
+                        if (planHTML) {
+                            lastPlanHTML = planHTML;
+                        } else {
+                            lastPlanHTML = '';
+                            console.warn('plan_html не найден в routeInfo.text');
+                        }
+                    } catch (e) {
+                        lastPlanHTML = '';
+                        console.warn('Ошибка парсинга plan_html:', e);
+                    }
 
                     windBtn.innerHTML = `<i class="fa-solid fa-check"></i> Успешно загружено`;
 

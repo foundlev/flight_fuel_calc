@@ -1,7 +1,7 @@
 const TEST_MODE = document.URL.includes('http://localhost:');  // true - test mode, false - release mode
 const ONLINE_MODE = true;  // true - WLAN, false && TEST_MODE - NO WLAN
 
-const APP_VERSION = '1.2'
+const APP_VERSION = '1.3'
 
 const NO_WLAN = TEST_MODE && !ONLINE_MODE;
 
